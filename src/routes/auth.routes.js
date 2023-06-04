@@ -6,6 +6,7 @@ const uploader = require("../middleware/uploader.middleware")
 
 
 app.post('/login',authCtrl.login)
+
 const uploadPath =(req,res,next) => {
     req.uploadPath ="./public/user"
     next()
@@ -13,6 +14,12 @@ const uploadPath =(req,res,next) => {
 }
 
 app.post('/register',uploadPath, uploader.single("image"), authCtrl.register)
+
+const uploadPath2 =(req,res,next) => {
+    req.uploadPath ="./public/user/active"
+    next()
+
+}
 
 app.post('/activate',authCtrl.activate)
 app.post('/forget-password',authCtrl.forgetPassword)

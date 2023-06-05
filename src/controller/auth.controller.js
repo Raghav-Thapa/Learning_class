@@ -1,7 +1,8 @@
 const bcrypt = require("bcryptjs")
 const userServ = require("../services/user.service")
 const mailSvc = require("../services/mailer.service")
-const dotenv = require("dotenv")
+const dotenv = require("dotenv");
+const helpers = require("../utilities/helpers");
 dotenv.config();
 
 class authController {
@@ -25,9 +26,11 @@ class authController {
 
             registerData.password = bcrypt.hashSync(registerData.password, 10);
             //TODO generate random string
-            registerData.token = 'abcdefgh123';
+            registerData.token = helpers.generateRandomString();
 
             //TODO DB QUERY
+
+            
             let mailMsg = `Dear ${registerData.name}, <br/> Your account has been registered
             successfully. Please click the link below to activate your account:
             <a href="${process.env.FRONTEND_URL}activate/${registerData.token}">"http://localhost:3000/activate/${registerData.token}"</a>
@@ -37,6 +40,8 @@ class authController {
             `
 
             await mailSvc.sendMail(registerData.email, "Activate your account", mailMsg);
+
+            //data store -> db
 
         //   console.log(registerData)
         res.json({

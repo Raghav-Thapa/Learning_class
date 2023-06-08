@@ -8,12 +8,35 @@ const {MongoClient} = require("mongodb");
 
 
 class authController {
-    login = (req,res,next) =>{
-        //todo
-        let payload = req.body;
-        res.json({
-            result:payload
-        })
+    login = async (req,res,next) =>{
+       try{
+         //todo
+         let payload = req.body;
+
+         if(!payload.email || !payload.password){
+             next({status: 400, msg:"Credentials required"})
+         }
+ 
+         //validation
+         let userDetail = await userServ.getUserByEmail(payload.email)
+
+        
+            //password match
+            
+                res.json({
+                    //  result:payload
+                     result:userDetail,
+                     status: true,
+                     msg:"you are logged in"
+                 })
+            
+         //db query
+
+       } catch(exception){
+        console.log(exception);
+        next({status: 400, msg:"Query exception. View console"})
+
+       }
 
     }
     register = async (req,res,next) =>{
@@ -33,14 +56,17 @@ class authController {
             //TODO DB QUERY
             // from local
             
-            let client = await MongoClient.connect("mongodb://127.0.0.1:27017") 
+            // let client = await MongoClient.connect("mongodb://127.0.0.1:27017") 
 
 
-            let db = client.db(process.env.MONGODV_NAME)
+            // let client = await MongoClient.connect(process.env.MONGODB_URL) 
+            // let db = client.db(process.env.MONGODB_NAME)
 
-            let queryResponse = await db.collection('users').insertOne(registerData)
+            // let queryResponse = await db.collection('users').insertOne(registerData)
 
-            if(queryResponse.acknowledged){
+            let registerResponse = await userServ.registerUser(registerData)
+
+            if(registerResponse.acknowledged){
                 
             let mailMsg = `Dear ${registerData.name}, <br/> Your account has been registered
             successfully. Please click the link below to activate your account:
@@ -56,7 +82,8 @@ class authController {
 
         //   console.log(registerData)
         res.json({
-            result: registerData 
+            result: registerData,
+            msg: "user registered successfully"
         })
 
             }

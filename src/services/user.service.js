@@ -1,51 +1,64 @@
+const { ObjectId } = require("mongodb")
 const MongodbService = require("./mongodb.service")
 
-class userService extends MongodbService {
+class UserService extends MongodbService{
     constructor(){
         super()
     }
-    validateRegisterData = (data) =>{
-        
+    validatedata = (data) =>{
         if(!data.name){
-            throw{status: 400, msg: "Name required"}
-        }//validation
+            throw {status: 400, msg: "Name required"}
+        }
         if(!data.email){
-            throw{status: 400, msg: "Email required"}
+            throw {status: 400, msg: "Email required"}
         }
+        
         if(!data.password){
-            throw{status: 400, msg: "Password required"}
+            throw {status: 400, msg: "Password required"}
         }
+
         if(data.password.length < 8){
-            throw{status: 400, msg: "Password length must be 8 character"}
+            throw {status: 400, msg: "Password must be of atleast 8 characters"}
         }
+
+        if(!data.role){
+            throw {status: 400, msg: "Role required"}
+        }
+        
     }
     registerUser = async(data) => {
         try{
-            let queryResponse = await this._db.collection("users").insertOne(data) 
+            let queryResponse = await this._db.collection("users").insertOne(data);
             return queryResponse;
-
         } catch(exception){
             throw exception;
         }
     }
     getUserByEmail = async(email) => {
-        try{
-            let user = await this._db.collection("users").findOne({
+        try {
+            let  user = await this._db.collection("users").findOne({
                 email: email
             })
             if(user){
                 return user;
-            } else{
+            } else {
                 throw "User does not exists"
             }
-            
+        } catch(except){
+            throw except
+        }
+    }
 
-        }catch(exception){
-            throw(exception)
-
+    getUserById = async(id)=>{
+        try {
+            let userDetail = await this._db.collection("users").findOne({
+                _id: new ObjectId(id)
+            })
+            return userDetail
+        } catch(err){
+            throw err
         }
     }
 }
-
-const userServ = new userService()
+const userServ = new UserService();
 module.exports = userServ;

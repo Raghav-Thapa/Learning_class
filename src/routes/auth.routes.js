@@ -1,6 +1,7 @@
 const app = require("express").Router()
 const authCtrl = require('../controller/auth.controller')
 const authCheck = require("../middleware/auth.middleware")
+const { checkPermission } = require("../middleware/permission.middleware")
 const uploader = require("../middleware/uploader.middleware")
 
 
@@ -21,9 +22,11 @@ app.post('/register',uploadPath, uploader.single("image"), authCtrl.register)
 
 // }
 
-app.post('/activate',authCtrl.activate)
+app.post('/activate/:token',authCtrl.activate)
 app.post('/forget-password',authCtrl.forgetPassword)
 app.post('/password-reset', authCtrl.resetPassword)
-app.post('/me',authCheck,authCtrl.getLoggedInUser)
+app.get('/me',authCheck,authCtrl.getLoggedInUser)
+
+app.get("/refresh-token", authCheck, authCtrl.refreshToken)
 
 module.exports = app;

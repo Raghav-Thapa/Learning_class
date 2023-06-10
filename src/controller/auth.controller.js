@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const helpers = require("../utilities/helpers");
 dotenv.config();
 const {MongoClient} = require("mongodb");
+const jwt = require('jsonwebtoken');
 
 
 class authController {
@@ -12,24 +13,47 @@ class authController {
        try{
          //todo
          let payload = req.body;
-
          if(!payload.email || !payload.password){
              next({status: 400, msg:"Credentials required"})
          }
  
          //validation
          let userDetail = await userServ.getUserByEmail(payload.email)
-
-        
+         //password match
+         if(bcrypt.compareSync(payload.password, userDetail.password)){
             //password match
-            
-                res.json({
-                    //  result:payload
-                     result:userDetail,
-                     status: true,
-                     msg:"you are logged in"
-                 })
-            
+
+            if(userDetail.status === 'active'){
+                let accessToken = jwt.sign({
+                    userId: userDetail._id
+                }, process.env.JWT_SECRET, {expiresIn:'3h'});
+
+                let refreshToken = jwt.sign({
+                    userId: userDetail._id
+                }, process.env.JWT_SECRET, {expiresIn:'3h'});
+
+            res.json({
+                //  result:payload
+                 result:{
+                    data: userDetail,
+                    token: {
+                        accessToken: accessToken,
+                        accessType: "Bearer",
+                        refreshToken: refreshToken
+                    }
+                 },
+                 status: true,
+                 msg:"you are logged in"
+             })
+            } else{
+                next({status: 403, msg: 'Your account has not been activated yet'})
+            }
+
+         } else{
+            //password does not match
+            next({status: 400, msg:'Credentials does not match'})
+         }
+         
          //db query
 
        } catch(exception){
@@ -116,7 +140,20 @@ class authController {
 
     }
     getLoggedInUser = (req,res,next) =>{
+        try{
+            res.json({
+                result: req.authUser,
+                msg:"Your detail",
+                status: true
 
+            })
+        }  catch(exception){
+            console.log(exception);
+            next(exception)
+        }
+
+    }
+    refreshToken = async(req, res, next) =>{
     }
 
 }

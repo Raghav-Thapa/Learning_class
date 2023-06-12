@@ -1,10 +1,11 @@
-const { ObjectId } = require("mongodb")
-const MongodbService = require("./mongodb.service")
+// const { ObjectId } = require("mongodb")
+// const MongodbService = require("./mongodb.service")
+const UserModel = require("../models/user.model")
 
-class UserService extends MongodbService{
-    constructor(){
-        super()
-    }
+class UserService{
+    // constructor(){
+    //     super()
+    // }
     validatedata = (data) =>{
         if(!data.name){
             throw {status: 400, msg: "Name required"}
@@ -28,17 +29,26 @@ class UserService extends MongodbService{
     }
     registerUser = async(data) => {
         try{
-            let queryResponse = await this._db.collection("users").insertOne(data);
-            return queryResponse;
+            // let queryResponse = await this._db.collection("users").insertOne(data);
+            let user = new UserModel(data)
+            return await user.save();
+            // return queryResponse;
         } catch(exception){
+            if(exception.code === 11000){
+                throw{status: 400, msg: "Email should be unique"}
+            }
             throw exception;
         }
     }
     getUserByEmail = async(email) => {
         try {
-            let  user = await this._db.collection("users").findOne({
+            let user = await UserModel.findOne({
                 email: email
             })
+
+            // let  user = await this._db.collection("users").findOne({
+            //     email: email
+            // })
             if(user){
                 return user;
             } else {
@@ -51,9 +61,11 @@ class UserService extends MongodbService{
 
     getUserById = async(id)=>{
         try {
-            let userDetail = await this._db.collection("users").findOne({
-                _id: new ObjectId(id)
-            })
+            let userDetail =await UserModel.findById(id);
+
+            // let userDetail = await this._db.collection("users").findOne({
+            //     _id: new ObjectId(id)
+            // })
             return userDetail
         } catch(err){
             throw err

@@ -71,7 +71,7 @@ class authController {
             registerData.image = req.file.filename
         }
 
-          userServ.validateRegisterData(registerData)
+          userServ.validatedata(registerData)
 
             registerData.password = bcrypt.hashSync(registerData.password, 10);
             //TODO generate random string
@@ -90,7 +90,7 @@ class authController {
 
             let registerResponse = await userServ.registerUser(registerData)
 
-            if(registerResponse.acknowledged){
+            if(registerResponse){
                 
             let mailMsg = `Dear ${registerData.name}, <br/> Your account has been registered
             successfully. Please click the link below to activate your account:

@@ -1,37 +1,22 @@
-const app = require('express').Router()
-app.get('/',(req,res) => {
-    //login logic
-})
+const router = require('express').Router()
+const { bannerCtrl } = require('../controller')
+const authCheck = require("../middleware/auth.middleware")
+const { checkPermission } = require('../middleware/permission.middleware')
+const uploader = require('../middleware/uploader.middleware')
 
-app.post('/',(req,res,next) => {
-    //create banner
-    let loginCheck = true
-    console.log("I am middleware call");
-    if (loginCheck){
-        next()
-    } else{
-        next("Hello")
-    }
-},(req,res,next) =>{
-    console.log("I am controller call")
-    res.json({
-        data:null,
-        message: "You have to login"
-    })
+const uploadPath = (req,res,next) =>{
+    req.uploadPath = "./public/banners/"
 }
-)
 
-app.put('/update',(req,res) => {
-    //update banner
-})
+router.route("/")
+    .get(authCheck, checkPermission('admin'), bannerCtrl.listAllBanners)
+    .post(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),bannerCtrl.storeBanner)
 
-app.delete('/delete',(req,res) => {
-    //delete banner
-})
+router.route("/:id")
+    .put(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),bannerCtrl.updateBanner)
+    .delete(authCheck, checkPermission('admin'),bannerCtrl.deleteBanner)
 
-app.get('/active',(req,res) => {
-    //get active banner
-})
+router.get('/:status/by-status', bannerCtrl.getBannerByStatus)
 
-module.exports = app
+module.exports = router;
 

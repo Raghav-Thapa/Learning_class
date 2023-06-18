@@ -1,21 +1,19 @@
 const mongoose = require('mongoose')
 const BannerSchema = new mongoose.Schema({
-    title: {
+    title:{
         type: String,
-        require: true,
+        require: true
     },
     image:{
         type: String,
         require: true
     },
-    link:{
-        type: String,
+    link: String,
         status:{
             type: String,
             ennum:['active','inactive'],
             default: 'inactive'
-        }
-    },
+        },
     startDate:{
         type: Date,
         default: Date.now()

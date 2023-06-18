@@ -4,7 +4,7 @@ class BannerController{
     _svc;
 
     constructor(){
-        this._svc = new BannerService
+        this._svc = new BannerService(); 
     }
     
     listAllBanners = async (req, res, next) => {
@@ -16,6 +16,7 @@ class BannerController{
             }
 
             let data = await this._svc.getAllBanners(paging)
+            // console.log(data)
             res.json({
                 result: data,
                 status: true,
@@ -33,25 +34,79 @@ class BannerController{
             let data = req.body;
             if(req.file){
                 data.image = req.file.filename;
-
             }
 
             let validated = await this._svc.bannerValidate(data);
+            let response = await this._svc.createBanner(validated); 
+            res.json({
+                result: response,
+                msg : "Banner created successfully",
+                status: true,
+                meta: null
+            })
         }catch(exception){
             next(exception)
         }
 
     }
 
-    updateBanner = (req, res, next) => {
+    updateBanner = async (req, res, next) => {
+        try{
+            let data = req.body;
+            let banner = await this._svc.getBannerById(req.params.id)
+            if(req.file){
+                data.image = req.file.filename;
+            } else{
+                data.image = banner.image
+            }
+
+            let validated = await this._svc.bannerValidate(data);
+            let response = await this._svc.updateBanner(validated, req.params.id); 
+            res.json({
+                result: response,
+                msg : "Banner updated successfully",
+                status: true,
+                meta: null
+            })
+        }catch(exception){
+            next(exception)
+        }
 
     }
 
-    deleteBanner =(req, res, next) => {
+    deleteBanner = async (req, res, next) => {
+        try{
+            let banner = await this._svc.getBannerById(req.params.id)
+            let del = await this._svc.deleteBannerById(req.params.id)
+            res.json({
+                result : del,
+                msg: "Banner deleted successfully",
+                status: true,
+                meta: null
+            })
+        }catch(except){
+            next(except)
+        }
 
     }
 
-    getBannerByStatus =(req, res, next) => {
+    getBannerForHomePage = async (req, res, next) => {
+        try{
+            let filter ={
+                status: "active",
+                startDate: {$lte: Date.now()},
+                endDate: {$gte: Date.now()}
+            }
+            let data = await this._svc.getBannerByFilter(filter);
+            res.json({
+                result: data,
+                msg:"Banner data",
+                status: true,
+                meta: null
+            })
+        }catch(exception){
+            next(exception)
+        }
 
     }
 

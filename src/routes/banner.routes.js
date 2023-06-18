@@ -5,7 +5,8 @@ const { checkPermission } = require('../middleware/permission.middleware')
 const uploader = require('../middleware/uploader.middleware')
 
 const uploadPath = (req,res,next) =>{
-    req.uploadPath = "./public/banners/"
+    req.uploadPath = "./public/banners/";
+    next()
 }
 
 router.route("/")
@@ -16,7 +17,7 @@ router.route("/:id")
     .put(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),bannerCtrl.updateBanner)
     .delete(authCheck, checkPermission('admin'),bannerCtrl.deleteBanner)
 
-router.get('/:status/by-status', bannerCtrl.getBannerByStatus)
+router.get('/list/home', bannerCtrl.getBannerForHomePage)
 
 module.exports = router;
 

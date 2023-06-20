@@ -1,25 +1,23 @@
-const express = require('express')
-const app = express()
+const router = require('express').Router()
+const { brandCtrl } = require('../controller')
+const authCheck = require("../middleware/auth.middleware")
+const { checkPermission } = require('../middleware/permission.middleware')
+const uploader = require('../middleware/uploader.middleware')
 
+const uploadPath = (req,res,next) =>{
+    req.uploadPath = "./public/brands/";
+    next()
+}
 
-app.get('/',(req,res) => {
-    //login logic
-})
+router.route("/")
+    .get(authCheck, checkPermission('admin'), brandCtrl.listAllBrands)
+    .post(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),brandCtrl.storeBrand)
 
-app.post('/create',(req,res) => {
-    //create brand
-})
+router.route("/:id")
+    .put(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),brandCtrl.updateBrand)
+    .delete(authCheck, checkPermission('admin'),brandCtrl.deleteBrand)
 
-app.put('/update',(req,res) => {
-    //update brand
-})
+router.get('/list/home', brandCtrl.getBrandForHomePage)
 
-app.delete('/delete',(req,res) => {
-    //delete brand
-})
+module.exports = router;
 
-app.get('/active',(req,res) => {
-    //get active brand
-})
-
-module.exports = app;

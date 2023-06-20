@@ -17,19 +17,11 @@ const BrandSchema = new mongoose.Schema({
             type: String,
             ennum:['active','inactive'],
             default: 'inactive'
-        },
-    startDate:{
-        type: Date,
-        default: Date.now()
-    },
-    endDate:{
-        type: Date
-    }
-
+        }
 },{
     timestamps:true,
     autoInced:true
 })
 
-const BrandModel = mongoose.model("Banner", BrandSchema)
+const BrandModel = mongoose.model("Brand", BrandSchema)
 module.exports = BrandModel

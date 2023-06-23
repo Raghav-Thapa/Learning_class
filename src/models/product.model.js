@@ -4,23 +4,15 @@ const ProductSchema = new mongoose.Schema({
         type: String,
         require: true
     },
-    parent:{
-        type: mongoose.Types.ObjectId,
-        ref: "Category",
-        default: null
-    },
-    image:{
-        type: String,
-    },
     slug:{
         type: String,
         require: true,
         unique: true
     },
-    category:{
+    categories:[{
         type: mongoose.Types.ObjectId,
         ref:"category"
-    },
+    }],
     detail:{
         type: String
     },
@@ -70,5 +62,5 @@ const ProductSchema = new mongoose.Schema({
     autoInced:true
 })
 
-const CategoryModel = mongoose.model("Banner", CategorySchema)
-module.exports = CategoryModel
+const ProductModel = mongoose.model("Product", ProductSchema)
+module.exports = ProductModel

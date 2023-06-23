@@ -37,5 +37,5 @@ const CategorySchema = new mongoose.Schema({
     autoInced:true
 })
 
-const CategoryModel = mongoose.model("Banner", CategorySchema)
+const CategoryModel = mongoose.model("Category", CategorySchema)
 module.exports = CategoryModel

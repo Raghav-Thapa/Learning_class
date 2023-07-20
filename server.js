@@ -3,6 +3,7 @@ const express = require("express")
 const app = express();
 const routes = require('./src/routes');
 require('./src/config/mongoose.config')
+const cors = require("cors")
 
 const server = http.createServer(app);
 
@@ -11,6 +12,7 @@ app.use(express.urlencoded({
     extended: false
 }))
 
+app.use(cors())
 
 
 app.use("/api/v1",routes)

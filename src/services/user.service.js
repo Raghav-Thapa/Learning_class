@@ -71,6 +71,31 @@ class UserService{
             throw err
         }
     }
+
+    getUserByFilter = async(filter)=>{
+        try {
+            let userDetail = await UserModel.find(filter);
+
+            // let userDetail = await this._db.collection("users").findOne({
+            //     _id: new ObjectId(id)
+            // })
+            return userDetail
+        } catch(err){
+            throw err
+        }
+    }
+
+    updateUser = async (data, id) => {
+        try {
+            let userDetail = await UserModel.findByIdAndUpdate(id, {$set: data});
+            return userDetail
+
+        } catch(err){
+            throw err
+        }
+
+    }
+
 }
 const userServ = new UserService();
 module.exports = userServ;

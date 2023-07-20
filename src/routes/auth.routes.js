@@ -22,7 +22,7 @@ app.post('/register',uploadPath, uploader.single("image"), authCtrl.register)
 
 // }
 
-app.post('/activate/:token',authCtrl.activate)
+app.post('/activate/:token',authCtrl.activateUser)
 app.post('/forget-password',authCtrl.forgetPassword)
 app.post('/password-reset', authCtrl.resetPassword)
 app.get('/me',authCheck,authCtrl.getLoggedInUser)

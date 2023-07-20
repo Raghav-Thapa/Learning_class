@@ -4,82 +4,83 @@ const mailSvc = require("../services/mailer.service")
 const dotenv = require("dotenv");
 const helpers = require("../utilities/helpers");
 dotenv.config();
-const {MongoClient} = require("mongodb");
+const { MongoClient } = require("mongodb");
 const jwt = require('jsonwebtoken');
 
 
 class authController {
-    login = async (req,res,next) =>{
-       try{
-         //todo
-         let payload = req.body;
-         if(!payload.email || !payload.password){
-             next({status: 400, msg:"Credentials required"})
-         }
- 
-         //validation
-         let userDetail = await userServ.getUserByEmail(payload.email)
-         //password match
-         if(bcrypt.compareSync(payload.password, userDetail.password)){
-            //password match
-
-            if(userDetail.status === 'active'){
-                let accessToken = jwt.sign({
-                    userId: userDetail._id
-                }, process.env.JWT_SECRET, {expiresIn:'3h'});
-
-                let refreshToken = jwt.sign({
-                    userId: userDetail._id
-                }, process.env.JWT_SECRET, {expiresIn:'3h'});
-
-            res.json({
-                //  result:payload
-                 result:{
-                    data: userDetail,
-                    token: {
-                        accessToken: accessToken,
-                        accessType: "Bearer",
-                        refreshToken: refreshToken
-                    }
-                 },
-                 status: true,
-                 msg:"you are logged in"
-             })
-            } else{
-                next({status: 403, msg: 'Your account has not been activated yet'})
+    login = async (req, res, next) => {
+        try {
+            //todo
+            let payload = req.body;
+            if (!payload.email || !payload.password) {
+                next({ status: 400, msg: "Credentials required" })
             }
 
-         } else{
-            //password does not match
-            next({status: 400, msg:'Credentials does not match'})
-         }
-         
-         //db query
+            //validation
+            let userDetail = await userServ.getUserByEmail(payload.email)
+            //password match
+            if (bcrypt.compareSync(payload.password, userDetail.password)) {
+                //password match
 
-       } catch(exception){
-        console.log(exception);
-        next({status: 400, msg:"Query exception. View console"})
+                if (userDetail.status === 'active') {
+                    let accessToken = jwt.sign({
+                        userId: userDetail._id
+                    }, process.env.JWT_SECRET, { expiresIn: '3h' });
 
-       }
+                    let refreshToken = jwt.sign({
+                        userId: userDetail._id
+                    }, process.env.JWT_SECRET, { expiresIn: '5d' });
 
-    }
-    register = async (req,res,next) =>{
-        try{
-          let registerData = req.body
-        //   console.log(req.file)
-        if(req.file){
-            registerData.image = req.file.filename
+                    res.json({
+                        //  result:payload
+                        result: {
+                            data: userDetail,
+                            token: {
+                                accessToken: accessToken,
+                                accessType: "Bearer",
+                                refreshToken: refreshToken
+                            }
+                        },
+                        status: true,
+                        msg: "you are logged in"
+                    })
+                } else {
+                    next({ status: 403, msg: 'Your account has not been activated yet' })
+                }
+
+            } else {
+                //password does not match
+                next({ status: 400, msg: 'Credentials does not match' })
+            }
+
+            //db query
+
+        } catch (exception) {
+            console.log(exception);
+            next({ status: 400, msg: "Query exception. View console" })
+
         }
 
-          userServ.validatedata(registerData)
+    }
+    register = async (req, res, next) => {
+        try {
+            let registerData = req.body
+            registerData.status = 'inactive';
+            //   console.log(req.file)
+            if (req.file) {
+                registerData.image = req.file.filename
+            }
+
+            userServ.validatedata(registerData)
 
             registerData.password = bcrypt.hashSync(registerData.password, 10);
             //TODO generate random string
-            registerData.token = helpers.generateRandomString();
+            registerData.activationToken = helpers.generateRandomString();
 
             //TODO DB QUERY
             // from local
-            
+
             // let client = await MongoClient.connect("mongodb://127.0.0.1:27017") 
 
 
@@ -90,70 +91,98 @@ class authController {
 
             let registerResponse = await userServ.registerUser(registerData)
 
-            if(registerResponse){
-                
-            let mailMsg = `Dear ${registerData.name}, <br/> Your account has been registered
+            if (registerResponse) {
+
+                let mailMsg = `Dear ${registerData.name}, <br/> Your account has been registered
             successfully. Please click the link below to activate your account:
-            <a href="${process.env.FRONTEND_URL}activate/${registerData.token}">"http://localhost:3000/activate/${registerData.token}"</a>
+            <a href="${process.env.FRONTEND_URL}activate/${registerData.activationToken}">"${process.env.FRONTEND_URL}activate/${registerData.activationToken}"</a>
             <br/>
             Regards,<br>
             Np-Reply, Admin
             `
 
-            await mailSvc.sendMail(registerData.email, "Activate your account", mailMsg);
+                await mailSvc.sendMail(registerData.email, "Activate your account", mailMsg);
 
-            //data store -> db
+                //data store -> db
 
-        //   console.log(registerData)
-        res.json({
-            result: registerData,
-            msg: "user registered successfully"
-        })
+                //   console.log(registerData)
+                res.json({
+                    result: registerData,
+                    msg: "user registered successfully",
+                    status: true
+                })
 
             }
-            else{
-                next({status:400, msg:"user cannot be registered at this moment"})
+            else {
+                next({ status: 400, msg: "user cannot be registered at this moment" })
             }
 
 
-        //    await MongoClient.connect("mongodb+srv://raghavmern:<password>@cluster0.aguznsx.mongodb.net/") from cluster
+            //    await MongoClient.connect("mongodb+srv://raghavmern:<password>@cluster0.aguznsx.mongodb.net/") from cluster
 
 
 
-            
+
 
         }
-        catch(exception){
+        catch (exception) {
             console.log(exception);
             next(exception)
 
         }
 
     }
-    activate = (req,res,next) =>{
+    activateUser = async (req, res, next) => {
+        try {
+            let token = req.params.token;
+            let userInfo = await userServ.getUserByFilter({
+                activationToken: token
+            })
+            console.log(userInfo);
+
+            if (!userInfo || userInfo.length <= 0) {
+                throw { status: 400, msg: "Token expired or already used" }
+              }
+              else {
+            let update = await userServ.updateUser({
+                activationToken : null,
+                status: "active"
+            }, userInfo[0]._id)
+            res.json({
+                result: userInfo,
+                msg: "user activated successfully",
+                status: true
+            })
+        }
+
+        } catch (exception) {
+            console.log(exception);
+            next(exception)
+
+        }
 
     }
-    forgetPassword = (req,res,next) =>{
+    forgetPassword = (req, res, next) => {
 
     }
-    resetPassword = (req,res,next) =>{
+    resetPassword = (req, res, next) => {
 
     }
-    getLoggedInUser = (req,res,next) =>{
-        try{
+    getLoggedInUser = (req, res, next) => {
+        try {
             res.json({
                 result: req.authUser,
-                msg:"Your detail",
+                msg: "Your detail",
                 status: true
 
             })
-        }  catch(exception){
+        } catch (exception) {
             console.log(exception);
             next(exception)
         }
 
     }
-    refreshToken = async(req, res, next) =>{
+    refreshToken = async (req, res, next) => {
     }
 
 }

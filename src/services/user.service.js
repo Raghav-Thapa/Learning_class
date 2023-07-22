@@ -85,6 +85,25 @@ class UserService{
         }
     }
 
+    // getUserByResetToken = async(resetToken) => {
+    //     try {
+    //         let user = await UserModel.findOne({
+    //             resetToken: resetToken
+    //         })
+
+    //         // let  user = await this._db.collection("users").findOne({
+    //         //     email: email
+    //         // })
+    //         if(user){
+    //             return user;
+    //         } else {
+    //             throw "User does not exists"
+    //         }
+    //     } catch(except){
+    //         throw except
+    //     }
+    // }
+
     updateUser = async (data, id) => {
         try {
             let userDetail = await UserModel.findByIdAndUpdate(id, {$set: data});

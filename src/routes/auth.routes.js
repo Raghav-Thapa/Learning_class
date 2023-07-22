@@ -24,7 +24,7 @@ app.post('/register',uploadPath, uploader.single("image"), authCtrl.register)
 
 app.post('/activate/:token',authCtrl.activateUser)
 app.post('/forget-password',authCtrl.forgetPassword)
-app.post('/password-reset', authCtrl.resetPassword)
+app.post('/reset-password', authCtrl.resetPassword)
 app.get('/me',authCheck,authCtrl.getLoggedInUser)
 
 app.get("/refresh-token", authCheck, authCtrl.refreshToken)

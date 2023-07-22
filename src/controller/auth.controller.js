@@ -162,10 +162,81 @@ class authController {
         }
 
     }
-    forgetPassword = (req, res, next) => {
+
+    forgetPassword = async (req, res, next) => {
+        try{
+            console.log("Received forget password request");
+
+            const {email} = req.body
+
+            if (!email) {
+                throw { status: 400, msg: "Email is required" };
+              }
+
+            const user = await userServ.getUserByEmail(email)
+
+            if(!user){
+                throw{status:404, msg:"User not found"}
+            }
+            
+            const resetToken =  helpers.generateRandomString();
+
+            await userServ.updateUser({resetToken}, user._id)
+
+            let mailMsg = `Dear ${user.name}, <br/> You have requesteed top reset your password. Please click the link below to reset password:
+            <a href="${process.env.FRONTEND_URL}reset-password/${resetToken}">"${process.env.FRONTEND_URL}reset-password/${resetToken}"</a>
+            <br/>
+            Regards,<br>
+            Np-Reply, Admin
+            `
+            await mailSvc.sendMail(user.email, "Reset your password", mailMsg);
+            
+            res.json({
+                result: user,
+                msg: "Reset link sent",
+                status: true
+            });
+
+        } catch(exception){
+            console.log(exception);
+            next(exception)
+        }
 
     }
-    resetPassword = (req, res, next) => {
+
+    resetPassword = async (req, res, next) => {
+        try{
+            // const {email, password} = req.body
+            // const payload = req.body
+            const { email, newPassword } = req.body;
+
+            if (!email || !newPassword) {
+                throw { status: 400, msg: "Email and new Password are required" };
+              }
+            const user = await userServ.getUserByEmail(email);
+
+            if (!user) {
+                throw { status: 400, msg: "User not found" };
+              }
+
+              let hashedPassword = bcrypt.hashSync(newPassword, 10);
+
+              await userServ.updateUser({
+                password: hashedPassword
+              }, user._id)
+
+              res.json({
+                result: user,
+                msg: "Password has been reset successfully",
+                status: true,
+              });
+
+
+        }catch(exception){
+            console.log(exception);
+            next(exception)
+        }
+        
 
     }
     getLoggedInUser = (req, res, next) => {

@@ -16,7 +16,7 @@ class mailService{
           });
     }
 
-    sendMail = async (to, subject, content, attachments = null, cc= null, bcc= null) =>{
+    sendMail =  async (to, subject, content, attachments = null, cc= null, bcc= null) =>{
         try{
             let msg = {
                 from: '"Admin User" no-reply@test.com', // sender address

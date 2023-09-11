@@ -16,6 +16,7 @@ router.route("/")
 router.route("/:id")
     .put(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),brandCtrl.updateBrand)
     .delete(authCheck, checkPermission('admin'),brandCtrl.deleteBrand)
+    .get(authCheck, checkPermission('admin'), brandCtrl.getBrandById)
 
 router.get('/list/home', brandCtrl.getBrandForHomePage)
 

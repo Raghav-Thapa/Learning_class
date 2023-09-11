@@ -23,6 +23,9 @@ const UserSchema = new mongoose.Schema({
         require: true,
         unique: true
     },
+    image:{
+        type: String
+    },
     password:{
         type: String,
         require: true

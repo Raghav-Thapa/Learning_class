@@ -27,6 +27,18 @@ class UserService{
         }
         
     }
+
+    updatedata = (data) =>{
+        if(!data.name){
+            throw {status: 400, msg: "Name required"}
+        }
+
+        if(!data.role){
+            throw {status: 400, msg: "Role required"}
+        }
+        
+    }
+    
     registerUser = async(data) => {
         try{
             // let queryResponse = await this._db.collection("users").insertOne(data);
@@ -84,6 +96,53 @@ class UserService{
             throw err
         }
     }
+
+    getAllUsers = async ({perPage = 10, currentPage =1}) =>{
+        try{
+            let skip = (currentPage-1) * perPage;
+
+            let data = await UserModel.find()
+            .sort({_id: -1})
+            .skip(skip)
+            .limit(perPage)
+            return data;
+        } catch(exception) {
+            console.log(exception)
+            throw{status: 500, msg: "Querry execution fialed."}
+        }
+    }
+
+    getAllCount = async (filter ={}) => {
+        return await UserModel.count(filter)
+    }
+
+    deleteUserById = async(id) => {
+        try{
+            let delResponse = await UserModel.findByIdAndDelete(id)
+            if(delResponse){
+                return delResponse
+            } else{
+                throw{status:404, msg: "User has been already deleted or does not exist"}
+            }
+            
+        }catch(except){
+            throw except
+        }
+    }
+
+    getUserByFilter = async(filter, paging) =>{
+        try{
+            // let skip = (paging.currentPage-1) * paging.perPage;
+            let response = await UserModel.find(filter)
+            .sort({_id: -1})
+            // .skip(skip)
+            .limit(10)
+                return response;
+        }catch(exception){
+            throw exception
+        }
+    }
+
 
     // getUserByResetToken = async(resetToken) => {
     //     try {

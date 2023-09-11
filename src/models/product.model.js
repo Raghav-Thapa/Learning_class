@@ -11,7 +11,7 @@ const ProductSchema = new mongoose.Schema({
     },
     categories:[{
         type: mongoose.Types.ObjectId,
-        ref:"category"
+        ref:"Category"
     }],
     detail:{
         type: String
@@ -52,7 +52,7 @@ const ProductSchema = new mongoose.Schema({
         images:[{
             type: String
         }],
-        sellerid:{
+        sellerId:{
             type: mongoose.Types.ObjectId,
             default: null,
             ref: "User"

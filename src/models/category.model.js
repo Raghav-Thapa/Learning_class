@@ -18,7 +18,7 @@ const CategorySchema = new mongoose.Schema({
         require: true,
         unique: true
     },
-    brand:[{
+    brands:[{
         type: mongoose.Types.ObjectId,
         ref:"Brand",
         default: null

@@ -110,6 +110,21 @@ class BannerController{
 
     }
 
+    getBannerById = async (req, res, next) => {
+        try{
+            let id = req.params.id;
+            let data = await this._svc.getBannerById(id);
+            res.json({
+                result: data,
+                msg:"Banner data fetched",
+                status: true,
+                meta: null
+            })
+        }catch(exception){
+            next(exception)
+        }
+    }
+
 
 }
 

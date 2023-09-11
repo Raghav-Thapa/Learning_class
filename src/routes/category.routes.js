@@ -16,6 +16,7 @@ router.route("/")
 router.route("/:id")
     .put(authCheck, checkPermission('admin'), uploadPath, uploader.single('image'),categoryCtrl.updateCategory)
     .delete(authCheck, checkPermission('admin'),categoryCtrl.deleteCategory)
+    .get(authCheck, checkPermission("admin"), categoryCtrl.getCategoryById)
 
 router.get('/list/home', categoryCtrl.getCategoryForHomePage)
 

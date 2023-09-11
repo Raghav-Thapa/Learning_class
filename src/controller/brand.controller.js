@@ -115,6 +115,21 @@ class BrandController{
 
     }
 
+    getBrandById = async (req, res, next) => {
+        try{
+            let id = req.params.id;
+            let data = await this._svc.getBrandById(id);
+            res.json({
+                result: data,
+                msg:"Brand data fetched",
+                status: true,
+                meta: null
+            })
+        }catch(exception){
+            next(exception)
+        }
+    }
+
 
 }
 

@@ -1,14 +1,14 @@
-const CategoryService = require("../services/category.service");
+const userServ = require("../services/user.service");
 const slugify = require("slugify")
 
-class CategoryController{
+class UserController{
     _svc;
 
     constructor(){
-        this._svc = new CategoryService(); 
+        this._svc = userServ; 
     }
     
-    listAllCategorys = async (req, res, next) => {
+    listAllUsers = async (req, res, next) => {
         try{
             let paging ={
                 totalNoOfRows: await this._svc.getAllCount(),
@@ -16,12 +16,12 @@ class CategoryController{
                 currentPage: req.query.page ? Number(req.query.page):1
             }
 
-            let data = await this._svc.getAllCategorys(paging)
+            let data = await this._svc.getAllUsers(paging)
             // console.log(data)
             res.json({
                 result: data,
                 status: true,
-                msg: "Category Data Fetched",
+                msg: "User Data Fetched",
                 meta: paging
             })
         } catch(exception){
@@ -30,26 +30,19 @@ class CategoryController{
 
     }
 
-    storeCategory = async (req, res ,next) =>{
+    storeUser = async (req, res ,next) =>{
         try{
             let data = req.body;
             if(req.file){
                 data.image = req.file.filename;
             }
 
-            if(data.parent === 'NULL' || !data.parent){
-                data.parent = null;
-            }
-            if(data.brands === 'NULL' || !data.brands){
-                data.brands = null;
-            }
-
-            let validated = await this._svc.categoryValidate(data);
+            let validated = await this._svc.userValidate(data);
             validated.slug = slugify(validated.name, {lower: true, replacement :"-"})
-            let response = await this._svc.createCategory(validated); 
+            let response = await this._svc.createUser(validated); 
             res.json({
                 result: response,
-                msg : "Category created successfully",
+                msg : "User created successfully",
                 status: true,
                 meta: null
             })
@@ -59,21 +52,21 @@ class CategoryController{
 
     }
 
-    updateCategory = async (req, res, next) => {
+    updateUser = async (req, res, next) => {
         try{
             let data = req.body;
-            let category = await this._svc.getCategoryById(req.params.id)
+            let user = await this._svc.getUserById(req.params.id)
             if(req.file){
                 data.image = req.file.filename;
             } else{
-                data.image = category.image
+                data.image = user.image
             }
 
-            let validated = await this._svc.categoryValidate(data);
-            let response = await this._svc.updateCategory(validated, req.params.id); 
+            let validated = await this._svc.updatedata(data);
+            let response = await this._svc.updateUser(validated, req.params.id); 
             res.json({
                 result: response,
-                msg : "Category updated successfully",
+                msg : "User updated successfully",
                 status: true,
                 meta: null
             })
@@ -83,13 +76,13 @@ class CategoryController{
 
     }
 
-    deleteCategory = async (req, res, next) => {
+    deleteUser = async (req, res, next) => {
         try{
-            let category = await this._svc.getCategoryById(req.params.id)
-            let del = await this._svc.deleteCategoryById(req.params.id)
+            let user = await this._svc.getUserById(req.params.id)
+            let del = await this._svc.deleteUserById(req.params.id)
             res.json({
                 result : del,
-                msg: "Category deleted successfully",
+                msg: "User deleted successfully",
                 status: true,
                 meta: null
             })
@@ -99,7 +92,7 @@ class CategoryController{
 
     }
 
-    getCategoryForHomePage = async (req, res, next) => {
+    getUserForHomePage = async (req, res, next) => {
         try{
             let filter ={
                 status: "active",
@@ -109,10 +102,10 @@ class CategoryController{
                 perPage: req.query.perPage ? Number(req.query.perPage):10,
                 currentPage: req.query.page ? Number(req.query.page):1
             }
-            let data = await this._svc.getCategoryByFilter(filter, paging);
+            let data = await this._svc.getUserByFilter(filter, paging);
             res.json({
                 result: data,
-                msg:"Category data",
+                msg:"User data",
                 status: true,
                 meta: paging
             })
@@ -122,24 +115,22 @@ class CategoryController{
 
     }
 
-    getCategoryById = async (req, res, next) => {
-        try {
-          let filter = {
-            _id: req.params.id
-          };
-          let data = await this._svc.getCategoryByFilter(filter);
-          res.json({
-            result: data[0],
-            msg: "Category Data",
-            status: true,
-            meta: null,
-          });
-        } catch (except) {
-          next(except);
+    getUserById = async (req, res, next) => {
+        try{
+            let id = req.params.id;
+            let data = await this._svc.getUserById(id);
+            res.json({
+                result: data,
+                msg:"User data fetched",
+                status: true,
+                meta: null
+            })
+        }catch(exception){
+            next(exception)
         }
-      };
+    }
 
 
 }
 
-module.exports = CategoryController
+module.exports = UserController

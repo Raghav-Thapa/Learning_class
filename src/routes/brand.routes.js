@@ -8,6 +8,7 @@ const uploadPath = (req,res,next) =>{
     req.uploadPath = "./public/brands/";
     next()
 }
+router.get("/:slug/detail",brandCtrl.getDetailOfBrand)
 
 router.route("/")
     .get(authCheck, checkPermission('admin'), brandCtrl.listAllBrands)

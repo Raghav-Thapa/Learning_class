@@ -31,48 +31,45 @@ class ProductController {
   storeProduct = async (req, res, next) => {
     try {
       let data = req.body;
-      
       if (req.files) {
         data.images = req.files.map((item) => {
-          return item.filename
+          return item.filename;
         });
       }
 
-      if(typeof data.attributes === 'string'){
+      if (typeof data.attributes === "string") {
         data.attributes = JSON.parse(data.attributes);
       }
 
       let validated = await this._svc.productValidate(data);
-      validated.slug = slugify(validated.name, { lower: true })
-      
-      // id,id,id => ["id","id","id"]
-      if(validated.categories  === 'null'){
-        validated.categories = null
+      validated.slug = slugify(validated.name, { lower: true });
+      if (validated.categories === "null") {
+        validated.categories = null;
       } else {
-        validated.categories =  validated.categories.split(",");
+        validated.categories = validated.categories.split(",");
       }
 
-      if(validated.brand  === 'null'){
-        validated.brand = null
+      if (validated.brand === "null") {
+        validated.brand = null;
       }
 
-      if(validated.sellerId  === 'null'){
-        validated.sellerId = null
+      if (validated.sellerId === "null") {
+        validated.sellerId = null;
       }
 
-      validated.afterDiscount = validated.price - validated.price * validated.discount/100;
+      validated.afterDiscount =
+        validated.price - (validated.price * validated.discount) / 100;
       let response = await this._svc.createProduct(validated);
       res.json({
         result: response,
         msg: "Product Created successfully",
         status: true,
-        meta: null
-      })
+        meta: null,
+      });
     } catch (exception) {
-      next(exception)
+      next(exception);
     }
-  }
-
+  };
   updateProduct = async (req, res, next) => {
     try {
       let data = req.body;
@@ -120,7 +117,6 @@ class ProductController {
       next(exception);
     }
   };
-
     getProductById = async(req, res, next) => {
   try {
     let product = await this._svc.getProductById(req.params.id)
@@ -135,6 +131,30 @@ class ProductController {
     next(except)
   }
 }
+
+getProductBySlug = async (req, res, next) => {
+  try {
+    let product = await this._svc.getProductByFilter(
+      {
+        slug: req.params.slug,
+      },
+      {
+        perPage: 1,
+        currentPage: 1,
+      }
+    );
+
+    res.json({
+      result: product[0],
+      msg: "Product fetched successfully",
+      status: true,
+      meta: null,
+    });
+  } catch (except) {
+    next(except);
+  }
+};
+
 deleteProduct = async (req, res, next) => {
   try {
     let product = await this._svc.getProductById(req.params.id)
@@ -157,7 +177,7 @@ getProductForHomePage = async (req, res, next) => {
     }
     let paging = {
       totalNoOfRows: await this._svc.getAllCount(filter),
-      perPage: req.query.perPage ? Number(req.query.perPage) : 10,
+      perPage: req.query.perPage ? Number(req.query.perPage) : 100,
       currentPage: req.query.page ? Number(req.query.page) : 1
     }
 

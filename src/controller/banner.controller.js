@@ -91,24 +91,23 @@ class BannerController{
     }
 
     getBannerForHomePage = async (req, res, next) => {
-        try{
-            let filter ={
-                status: "active",
-                startDate: {$lte: Date.now()},
-                endDate: {$gte: Date.now()}
-            }
-            let data = await this._svc.getBannerByFilter(filter);
-            res.json({
-                result: data,
-                msg:"Banner data",
-                status: true,
-                meta: null
-            })
-        }catch(exception){
-            next(exception)
+        try {
+          let filter = {
+            status: "active",
+            startDate: { $lte: Date.now() },
+            endDate: { $gte: Date.now() },
+          };
+          let data = await this._svc.getBannerByFilter(filter);
+          res.json({
+            result: data,
+            msg: "Banner Data",
+            status: true,
+            meta: null,
+          });
+        } catch (except) {
+          next(except);
         }
-
-    }
+      };
 
     getBannerById = async (req, res, next) => {
         try{

@@ -1,11 +1,37 @@
 const CategoryService = require("../services/category.service");
-const slugify = require("slugify")
+const slugify = require("slugify");
+const ProductService = require("../services/product.service");
 
 class CategoryController{
     _svc;
 
     constructor(){
         this._svc = new CategoryService(); 
+        this.prodSvc = new ProductService()
+    }
+
+    getDetailOfCategory = async(req, res, next) => {
+        try{
+            let slug = req.params.slug
+            let category = await this._svc.getCategoryByFilter({slug: slug});
+            let products = await this.prodSvc.getProductByFilter({
+                categories: {$in: [category[0]._id]}
+            }, {
+                perPage:100,
+                currentPage: 1
+            })
+            res.json({
+                data:{
+                    categoryDetail: category[0],
+                    productList: products
+                },
+                status: true,
+                msg: "Product List"
+            })
+
+        }catch(exception){
+            next(exception)
+        }
     }
     
     listAllCategorys = async (req, res, next) => {

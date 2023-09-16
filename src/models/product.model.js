@@ -49,9 +49,9 @@ const ProductSchema = new mongoose.Schema({
             ennum:['active','inactive'],
             default: 'inactive'
         },
-        images:[{
-            type: String
-        }],
+        images: {
+            type: Array,
+          },
         sellerId:{
             type: mongoose.Types.ObjectId,
             default: null,

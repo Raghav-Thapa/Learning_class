@@ -91,18 +91,15 @@ class BrandService{
             throw except
         }
     }
-    getBrandByFilter = async(filter, paging) =>{
-        try{
-            let skip = (paging.currentPage-1) * paging.perPage;
+    getBrandByFilter = async(filter, paging) =>  {
+        try {
             let response = await BrandModel.find(filter)
-            .sort({_id: -1})
-            .skip(skip)
-            .limit(paging.perPage)
-                return response;
-        }catch(exception){
+                    .sort({_id: -1})
+                    .limit(10)
+            return response;
+        } catch(exception) {
             throw exception
         }
     }
 }
-
 module.exports = BrandService

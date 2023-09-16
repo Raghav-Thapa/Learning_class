@@ -9,6 +9,8 @@ const uploadPath = (req,res,next) =>{
     next()
 }
 
+router.get("/:slug/detail", productCtrl.getProductBySlug);
+
 router.route("/")
     .get(authCheck, checkPermission('admin'), productCtrl.listAllProducts)
     .post(authCheck, checkPermission('admin'), uploadPath, uploader.array('images'),productCtrl.storeProduct)

@@ -1,11 +1,37 @@
 const BrandService = require("../services/brand.service");
-const slugify = require("slugify")
+const slugify = require("slugify");
+const ProductService = require("../services/product.service");
 
 class BrandController{
     _svc;
 
     constructor(){
         this._svc = new BrandService(); 
+        this.prodSvc = new ProductService();
+    }
+
+    getDetailOfBrand = async(req, res, next) => {
+        try{
+            let slug = req.params.slug
+            let brand = await this._svc.getBrandByFilter({slug: slug})
+            let products = await this.prodSvc.getProductByFilter({
+                brand: brand
+            }, {
+                perPage:100,
+                currentPage: 1
+            })
+            res.json({
+                data:{
+                    brandDetail: brand,
+                    productList: products
+                },
+                status: true,
+                msg: "Brand List"
+            })
+
+        }catch(exception){
+            next(exception)
+        }
     }
     
     listAllBrands = async (req, res, next) => {

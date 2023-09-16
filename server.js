@@ -14,6 +14,8 @@ app.use(express.urlencoded({
 
 app.use(cors())
 
+app.use("/assets/", express.static(process.cwd()+"/public/"));
+
 
 app.use("/api/v1",routes)
 
